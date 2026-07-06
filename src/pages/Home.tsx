@@ -33,7 +33,7 @@ export function Home() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center pt-10 pb-20 px-4">
       <h1 className="text-4xl font-bold text-red-600 mb-2">Pokédex</h1>
-      <p className="text-gray-500 mb-6">A Primeira Geração (Kanto)</p>
+      {/* <p className="text-gray-500 mb-6">A (Kanto)</p> */}
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
         <SearchBar
