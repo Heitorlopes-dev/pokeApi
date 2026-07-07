@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { typeColors } from '../utils/constants';
 
 interface PokemonCardProps {
     name: string;
@@ -6,27 +7,6 @@ interface PokemonCardProps {
     image: string;
     types?: string[];
 }
-// Cores das tipagens
-export const typeColors: Record<string, string> = {
-    normal: 'bg-[#A8A77A] text-white',
-    fire: 'bg-[#EE8130] text-white',
-    water: 'bg-[#6390F0] text-white',
-    electric: 'bg-[#F7D02C] text-gray-800',
-    grass: 'bg-[#7AC74C] text-gray-900',
-    ice: 'bg-[#96D9D6] text-gray-800',
-    fighting: 'bg-[#C22E28] text-white',
-    poison: 'bg-[#A33EA1] text-white',
-    ground: 'bg-[#E2BF65] text-gray-900',
-    flying: 'bg-[#7AE7F2] text-gray-900',
-    psychic: 'bg-[#F95587] text-white',
-    bug: 'bg-[#A6B91A] text-gray-900',
-    rock: 'bg-[#B6A136] text-white',
-    ghost: 'bg-[#735797] text-white',
-    dragon: 'bg-[#6F35FC] text-white',
-    dark: 'bg-[#705746] text-white',
-    steel: 'bg-[#B7B7CE] text-gray-900',
-    fairy: 'bg-[#D685AD] text-gray-900',
-};
 
 export function PokemonCard({ name, number, image, types }: PokemonCardProps) {
     return (

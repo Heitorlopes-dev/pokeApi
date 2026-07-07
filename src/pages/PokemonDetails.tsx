@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchPokemonByName } from "../services/pokemon";
 import { SkeletonDetails } from "../components/SkeletonDetails";
 import { ErrorMessage } from "../components/ErrorMessage";
-import { typeColors } from "../components/PokemonCard";
+import { typeColors } from "../utils/constants";
 import { DetailsNavigation } from "../components/DetailsNavigation";
 import { BaseStats } from "../components/BaseStats";
 
