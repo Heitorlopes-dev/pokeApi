@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPokemonByName } from "../services/pokemon";
 import { SkeletonDetails } from "../components/SkeletonDetails";
@@ -9,8 +9,6 @@ import { BaseStats } from "../components/BaseStats";
 
 export function PokemonDetails() {
   const { name } = useParams<{ name: string }>();
-  const navigate = useNavigate();
-
   const { data: pokemon, isLoading, isError } = useQuery({
     queryKey: ['pokemon', name],
     queryFn: () => fetchPokemonByName(name as string),
