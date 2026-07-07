@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPokemonByName } from "../services/pokemon";
-import { Loading } from "../components/Loading";
+import { SkeletonDetails } from "../components/SkeletonDetails";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { typeColors } from "../components/PokemonCard";
+import { DetailsNavigation } from "../components/DetailsNavigation";
+import { BaseStats } from "../components/BaseStats";
 
 export function PokemonDetails() {
   const { name } = useParams<{ name: string }>();
@@ -17,17 +19,10 @@ export function PokemonDetails() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center pt-10 pb-20 px-4">
-      {/* Botão de voltar */}
-      <div className="w-full max-w-5xl flex justify-start mb-6">
-        <button
-          onClick={() => navigate('/')}
-          className="text-red-600 hover:text-red-800 font-semibold flex items-center gap-2 transition"
-        >
-          &larr; Voltar para a Pokédex
-        </button>
-      </div>
+      {/* Navegação Topo */}
+      <DetailsNavigation pokemon={pokemon} />
 
-      {isLoading && <Loading />}
+      {isLoading && <div className="w-full flex justify-center mt-10"><SkeletonDetails /></div>}
       {isError && <ErrorMessage />}
 
       {pokemon && !isLoading && !isError && (
@@ -52,9 +47,7 @@ export function PokemonDetails() {
               {pokemon.types.map((type) => (
                 <span
                   key={type}
-                  className={`${typeColors[type.toLowerCase()] || 'bg-gray-200 text-gray-800'} px-8 py-2.5 rounded-full font-bold function name(params:type) {
-                    text-lg
-                  } shadow-md tracking-wide uppercase`}
+                  className={`${typeColors[type.toLowerCase()] || 'bg-gray-200 text-gray-800'} px-8 py-2.5 rounded-full font-bold text-lg shadow-md tracking-wide uppercase`}
                 >
                   {type}
                 </span>
@@ -86,47 +79,7 @@ export function PokemonDetails() {
               </div>
             </div>
 
-            <div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <span className="text-blue-500">Base</span> Stats
-              </h3>
-              <div className="flex flex-col gap-4">
-                {pokemon.stats.map((stat) => {
-                  // Mapear os nomes longos da API para siglas curtas
-                  const statNameMap: Record<string, string> = {
-                    'hp': 'HP',
-                    'attack': 'ATK',
-                    'defense': 'DEF',
-                    'special-attack': 'SpA',
-                    'special-defense': 'SpD',
-                    'speed': 'SPD'
-                  };
-                  const label = statNameMap[stat.name] || stat.name.toUpperCase();
-
-                  // Calcular a porcentagem baseada num valor máximo teórico (ex: 255)
-                  const percentage = Math.min((stat.value / 255) * 100, 100);
-
-                  // Definir cor dependendo do quão alto é o status
-                  const colorClass =
-                    stat.value >= 100 ? 'bg-green-500' :
-                      stat.value >= 70 ? 'bg-yellow-400' :
-                        stat.value >= 40 ? 'bg-orange-400' : 'bg-red-500';
-
-                  return (
-                    <div key={stat.name} className="flex items-center gap-4">
-                      <span className="w-12 text-sm font-bold text-gray-500 text-right">{label}</span>
-                      <span className="w-8 text-right font-bold text-gray-800">{stat.value}</span>
-                      <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-1000 ease-out ${colorClass}`}
-                          style={{ width: `${percentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <BaseStats stats={pokemon.stats} />
 
           </div>
         </div>

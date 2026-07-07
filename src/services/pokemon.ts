@@ -98,7 +98,7 @@ export async function fetchPokemonByName(name: string): Promise<PokemonDetailedD
 
     // A PokéAPI tem dezenas de línguas, vamos pegar a em inglês e limpar os "enters" do texto
     const flavorTextEntry = speciesData.flavor_text_entries.find(
-        (entry: any) => entry.language.name === 'en'
+        (entry: { language: { name: string }; flavor_text: string }) => entry.language.name === 'en'
     );
     const description = flavorTextEntry 
         ? flavorTextEntry.flavor_text.replace(/[\n\f\r]/g, ' ') 
@@ -108,10 +108,10 @@ export async function fetchPokemonByName(name: string): Promise<PokemonDetailedD
         name: data.name.charAt(0).toUpperCase() + data.name.slice(1),
         number: `#${data.id.toString().padStart(3, '0')}`,
         image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${data.id}.png`,
-        types: data.types.map((t: any) => t.type.name),
+        types: data.types.map((t: { type: { name: string } }) => t.type.name),
         weight: data.weight / 10, // Converter hectogramas para KG
         height: data.height / 10, // Converter decímetros para Metros
-        stats: data.stats.map((s: any) => ({
+        stats: data.stats.map((s: { base_stat: number; stat: { name: string } }) => ({
             name: s.stat.name,
             value: s.base_stat
         })),

@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SearchBar } from "../components/SearchBar";
 import { PokemonCard } from '../components/PokemonCard';
-import { Loading } from "../components/Loading";
+import { SkeletonCard } from "../components/SkeletonCard";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { Pagination } from "../components/Pagination";
+import { FloatingScrollButtons } from "../components/FloatingScrollButtons";
 import { fetchAllPokemon } from "../services/pokemon";
 
 export function Home() {
@@ -18,9 +20,10 @@ export function Home() {
   });
 
   const filteredPokemons = data?.filter((pokemon) => {
-    const matchesName = pokemon.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const matchesNameOrNumber = pokemon.name.toLowerCase().includes(searchLower) || pokemon.number.toString().includes(searchLower);
     const matchesType = selectedType === '' || pokemon.types.includes(selectedType);
-    return matchesName && matchesType;
+    return matchesNameOrNumber && matchesType;
   });
 
   const totalPages = filteredPokemons ? Math.ceil(filteredPokemons.length / itemsPerPage) : 0;
@@ -37,7 +40,7 @@ export function Home() {
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
         <SearchBar
-          placeholder="Procure por nome (ex: Pika...)"
+          placeholder="Procure por nome ou número..."
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
@@ -73,12 +76,12 @@ export function Home() {
       </div>
 
       <div className="mt-10 w-full max-w-6xl">
-        {isLoading && <div className="flex justify-center"><Loading /></div>}
-
         {isError && <div className="flex justify-center"><ErrorMessage /></div>}
 
-        {filteredPokemons && !isLoading && !isError && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {isLoading && Array.from({ length: itemsPerPage }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
             {currentPokemons?.map((pokemon) => (
               <PokemonCard
                 key={pokemon.number}
@@ -89,57 +92,26 @@ export function Home() {
               />
             ))}
 
-            {filteredPokemons.length === 0 && (
-              <p className="col-span-full text-center text-gray-500">Nenhum Pokémon encontrado com este nome.</p>
+            {filteredPokemons && filteredPokemons.length === 0 && !isLoading && !isError && (
+              <p className="col-span-full text-center text-gray-500">Nenhum Pokémon encontrado com este nome ou número.</p>
             )}
           </div>
-        )}
       </div>
 
       {filteredPokemons && filteredPokemons.length > 0 && !isLoading && !isError && (
-        <div className="flex flex-col items-center mt-10 gap-4">
-          <div className="flex justify-center items-center space-x-6">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 bg-red-600 text-white rounded-md disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-red-700 transition shadow-sm"
-            >
-              Anterior
-            </button>
-
-            <span className="text-gray-700 font-medium">
-              Página {currentPage} de {totalPages}
-            </span>
-
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-red-600 text-white rounded-md disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-red-700 transition shadow-sm"
-            >
-              Próximo
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 text-gray-600 text-sm mt-2">
-            <label htmlFor="itemsPerPage">Mostrar por página:</label>
-            <select
-              id="itemsPerPage"
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              className="border-2 border-gray-300 rounded-md p-1 focus:outline-none focus:border-red-500 bg-white"
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-              <option value={1025}>Todos (1025)</option>
-            </select>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={(items) => {
+            setItemsPerPage(items);
+            setCurrentPage(1);
+          }}
+        />
       )}
+
+      <FloatingScrollButtons />
     </div>
   )
 }
