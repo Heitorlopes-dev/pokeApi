@@ -17,6 +17,51 @@ const pokeApiGraphQLSchema = z.object({
         )
     })
 });
+
+const pokeApiDetailedGraphQLSchema = z.object({
+    data: z.object({
+        pokemon_v2_pokemon: z.array(
+            z.object({
+                id: z.number(),
+                name: z.string(),
+                height: z.number(),
+                weight: z.number(),
+                pokemon_v2_pokemonspecy: z.object({
+                    pokemon_v2_pokemonspeciesflavortexts: z.array(
+                        z.object({
+                            flavor_text: z.string()
+                        })
+                    ),
+                    pokemon_v2_evolutionchain: z.object({
+                        pokemon_v2_pokemonspecies: z.array(
+                            z.object({
+                                id: z.number(),
+                                name: z.string(),
+                                evolves_from_species_id: z.number().nullable()
+                            })
+                        )
+                    }).nullable()
+                }).nullable(),
+                pokemon_v2_pokemonstats: z.array(
+                    z.object({
+                        base_stat: z.number(),
+                        pokemon_v2_stat: z.object({
+                            name: z.string()
+                        })
+                    })
+                ),
+                pokemon_v2_pokemontypes: z.array(
+                    z.object({
+                        pokemon_v2_type: z.object({
+                            name: z.string()
+                        })
+                    })
+                )
+            })
+        )
+    })
+});
+
 export interface PokemonSimpleData {
     name: string;
     number: string;
@@ -70,11 +115,18 @@ export async function fetchAllPokemon(): Promise<PokemonSimpleData[]> {
     });
 }
 
+export interface EvolutionNode {
+    id: number;
+    name: string;
+    image: string;
+}
+
 export interface PokemonDetailedData extends PokemonSimpleData {
     weight: number;
     height: number;
     stats: { name: string; value: number }[];
     description: string;
+    evolutions: EvolutionNode[];
 }
 
 // --------------------------------------------------------
@@ -83,38 +135,86 @@ export interface PokemonDetailedData extends PokemonSimpleData {
 export async function fetchPokemonByName(name: string): Promise<PokemonDetailedData> {
     const safeName = name.toLowerCase();
 
-    // Dispara as duas requisições ao mesmo tempo para ganhar tempo
-    const [pokemonRes, speciesRes] = await Promise.all([
-        fetch(`https://pokeapi.co/api/v2/pokemon/${safeName}`),
-        fetch(`https://pokeapi.co/api/v2/pokemon-species/${safeName}`)
-    ]);
-    
-    if (!pokemonRes.ok || !speciesRes.ok) {
+    const query = `
+      query {
+        pokemon_v2_pokemon(where: {name: {_eq: "${safeName}"}}) {
+          id
+          name
+          height
+          weight
+          pokemon_v2_pokemonspecy {
+            pokemon_v2_pokemonspeciesflavortexts(where: {language_id: {_eq: 9}}, limit: 1) {
+              flavor_text
+            }
+            pokemon_v2_evolutionchain {
+              pokemon_v2_pokemonspecies(order_by: {id: asc}) {
+                id
+                name
+                evolves_from_species_id
+              }
+            }
+          }
+          pokemon_v2_pokemonstats {
+            base_stat
+            pokemon_v2_stat {
+              name
+            }
+          }
+          pokemon_v2_pokemontypes {
+            pokemon_v2_type {
+              name
+            }
+          }
+        }
+      }
+    `;
+
+    const response = await fetch('https://beta.pokeapi.co/graphql/v1beta', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Falha ao buscar detalhes do Pokémon!');
+    }
+
+    const json = await response.json();
+    const validResponse = pokeApiDetailedGraphQLSchema.parse(json);
+
+    if (validResponse.data.pokemon_v2_pokemon.length === 0) {
         throw new Error('Pokémon não encontrado');
     }
 
-    const data = await pokemonRes.json();
-    const speciesData = await speciesRes.json();
+    const data = validResponse.data.pokemon_v2_pokemon[0];
 
-    // A PokéAPI tem dezenas de línguas, vamos pegar a em inglês e limpar os "enters" do texto
-    const flavorTextEntry = speciesData.flavor_text_entries.find(
-        (entry: { language: { name: string }; flavor_text: string }) => entry.language.name === 'en'
-    );
-    const description = flavorTextEntry 
-        ? flavorTextEntry.flavor_text.replace(/[\n\f\r]/g, ' ') 
+    const flavorTexts = data.pokemon_v2_pokemonspecy?.pokemon_v2_pokemonspeciesflavortexts || [];
+    const description = flavorTexts.length > 0 
+        ? flavorTexts[0].flavor_text.replace(/[\n\f\r]/g, ' ') 
         : 'Descrição não disponível.';
+
+    const speciesList = data.pokemon_v2_pokemonspecy?.pokemon_v2_evolutionchain?.pokemon_v2_pokemonspecies || [];
+    
+    const evolutions: EvolutionNode[] = speciesList.map((species) => ({
+        id: species.id,
+        name: species.name.charAt(0).toUpperCase() + species.name.slice(1),
+        image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${species.id}.png`
+    }));
 
     return {
         name: data.name.charAt(0).toUpperCase() + data.name.slice(1),
         number: `#${data.id.toString().padStart(3, '0')}`,
         image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${data.id}.png`,
-        types: data.types.map((t: { type: { name: string } }) => t.type.name),
-        weight: data.weight / 10, // Converter hectogramas para KG
-        height: data.height / 10, // Converter decímetros para Metros
-        stats: data.stats.map((s: { base_stat: number; stat: { name: string } }) => ({
-            name: s.stat.name,
+        types: data.pokemon_v2_pokemontypes.map((t) => t.pokemon_v2_type.name),
+        weight: data.weight / 10,
+        height: data.height / 10,
+        stats: data.pokemon_v2_pokemonstats.map((s) => ({
+            name: s.pokemon_v2_stat.name,
             value: s.base_stat
         })),
-        description
+        description,
+        evolutions
     };
 }
