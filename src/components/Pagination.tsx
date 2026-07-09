@@ -19,31 +19,31 @@ export function Pagination({
                 <button
                     onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-red-700 transition shadow-sm"
+                    className="px-6 py-2 bg-slate-900 text-white font-bold uppercase tracking-widest border-4 border-slate-900 rounded-md disabled:bg-slate-400 disabled:border-slate-400 disabled:cursor-not-allowed hover:bg-slate-800 transition shadow-[4px_4px_0_0_rgba(255,255,255,1)] active:translate-y-[2px] active:translate-x-[2px] active:shadow-[2px_2px_0_0_rgba(255,255,255,1)]"
                 >
                     Anterior
                 </button>
 
-                <span className="text-gray-700 font-medium">
-                    Página {currentPage} de {totalPages}
+                <span className="text-white font-bold font-retro text-xl bg-slate-900 px-4 py-1 border-2 border-white rounded-md shadow-[2px_2px_0_0_rgba(0,0,0,0.5)]">
+                    Pág {currentPage} de {totalPages}
                 </span>
 
                 <button
                     onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-red-700 transition shadow-sm"
+                    className="px-6 py-2 bg-slate-900 text-white font-bold uppercase tracking-widest border-4 border-slate-900 rounded-md disabled:bg-slate-400 disabled:border-slate-400 disabled:cursor-not-allowed hover:bg-slate-800 transition shadow-[4px_4px_0_0_rgba(255,255,255,1)] active:translate-y-[2px] active:translate-x-[2px] active:shadow-[2px_2px_0_0_rgba(255,255,255,1)]"
                 >
                     Próximo
                 </button>
             </div>
 
-            <div className="flex items-center gap-2 text-gray-600 text-sm mt-2">
-                <label htmlFor="itemsPerPage">Mostrar por página:</label>
+            <div className="flex items-center gap-2 text-white font-bold text-sm mt-4 bg-slate-900 px-4 py-2 rounded-lg border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(0,0,0,0.3)]">
+                <label htmlFor="itemsPerPage" className="uppercase tracking-wide">Mostrar:</label>
                 <select
                     id="itemsPerPage"
                     value={itemsPerPage}
                     onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-                    className="border-2 border-gray-300 rounded-md p-1 focus:outline-none focus:border-red-500 bg-white"
+                    className="border-2 border-slate-700 rounded-md p-1 focus:outline-none focus:border-white bg-slate-800 text-white font-retro text-lg"
                 >
                     <option value={10}>10</option>
                     <option value={20}>20</option>

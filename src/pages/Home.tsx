@@ -7,6 +7,7 @@ import { ErrorMessage } from "../components/ErrorMessage";
 import { Pagination } from "../components/Pagination";
 import { FloatingScrollButtons } from "../components/FloatingScrollButtons";
 import { fetchAllPokemon } from "../services/pokemon";
+import { typeColors } from "../utils/constants";
 
 export function Home() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,12 +34,14 @@ export function Home() {
     currentPage * itemsPerPage
   );
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center pt-10 pb-20 px-4">
-      <h1 className="text-4xl font-bold text-red-600 mb-2">Pokédex</h1>
-      {/* <p className="text-gray-500 mb-6">A (Kanto)</p> */}
+  const availableTypes = Object.keys(typeColors);
 
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+  return (
+    <div className="min-h-screen bg-red-600 flex flex-col items-center pt-10 pb-20 px-4">
+      <h1 className="text-5xl sm:text-6xl font-black text-white mb-6 font-retro tracking-widest drop-shadow-[4px_4px_0_rgba(0,0,0,0.3)]">POKÉDEX</h1>
+
+
+      <div className="flex flex-col items-center justify-center gap-4 w-full max-w-4xl">
         <SearchBar
           placeholder="Procure por nome ou número..."
           value={searchTerm}
@@ -48,31 +51,39 @@ export function Home() {
           }}
         />
 
-        <select
-          value={selectedType}
-          onChange={(e) => {
-            setSelectedType(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="border-2 border-blue-400 rounded-lg p-2 h-[44px] shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white capitalize text-gray-700"
-        >
-          <option value="">Todos</option>
-          <option value="normal">Normal</option>
-          <option value="fire">Fire</option>
-          <option value="water">Water</option>
-          <option value="electric">Electric</option>
-          <option value="grass">Grass</option>
-          <option value="ice">Ice</option>
-          <option value="fighting">Fighting</option>
-          <option value="poison">Poison</option>
-          <option value="ground">Ground</option>
-          <option value="flying">Flying</option>
-          <option value="psychic">Psychic</option>
-          <option value="bug">Bug</option>
-          <option value="rock">Rock</option>
-          <option value="ghost">Ghost</option>
-          <option value="dragon">Dragon</option>
-        </select>
+        <div className="flex gap-2 overflow-x-auto w-full pb-2 no-scrollbar px-2 snap-x">
+          <button
+            onClick={() => {
+              setSelectedType('');
+              setCurrentPage(1);
+            }}
+            className={`px-4 py-2 rounded-full font-bold uppercase tracking-wide text-sm whitespace-nowrap transition-transform active:scale-95 snap-center ${
+              selectedType === ''
+                ? 'bg-slate-900 text-white shadow-[0_4px_0_0_rgba(0,0,0,0.3)] border-2 border-slate-900'
+                : 'bg-white text-slate-700 border-2 border-slate-300 hover:border-slate-500'
+            }`}
+          >
+            Todos
+          </button>
+          {availableTypes.map((type) => {
+            const isSelected = selectedType === type;
+            const styleClasses = typeColors[type] || 'bg-gray-200 text-gray-800';
+            return (
+              <button
+                key={type}
+                onClick={() => {
+                  setSelectedType(type);
+                  setCurrentPage(1);
+                }}
+                className={`px-4 py-2 rounded-full font-bold uppercase tracking-wide text-sm whitespace-nowrap transition-all active:scale-95 snap-center border-2 border-slate-900 ${
+                  isSelected ? 'scale-105 shadow-[0_4px_0_0_rgba(0,0,0,0.5)] ring-2 ring-white ring-offset-2 ring-offset-red-600' : 'opacity-90 hover:opacity-100 hover:shadow-[0_2px_0_0_rgba(0,0,0,0.5)]'
+                } ${styleClasses}`}
+              >
+                {type}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="mt-10 w-full max-w-6xl">
@@ -93,7 +104,10 @@ export function Home() {
             ))}
 
             {filteredPokemons && filteredPokemons.length === 0 && !isLoading && !isError && (
-              <p className="col-span-full text-center text-gray-500">Nenhum Pokémon encontrado com este nome ou número.</p>
+              <div className="col-span-full flex flex-col items-center justify-center py-16 bg-red-700/50 rounded-2xl border-4 border-dashed border-red-800">
+                <p className="text-xl text-red-100 font-bold mb-2">Nenhum Pokémon encontrado!</p>
+                <p className="text-red-200 text-sm">Tente limpar a busca ou os filtros.</p>
+              </div>
             )}
           </div>
       </div>

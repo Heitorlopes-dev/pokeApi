@@ -9,27 +9,27 @@ export function DetailsNavigation({ pokemon }: DetailsNavigationProps) {
     const navigate = useNavigate();
 
     return (
-        <div className="w-full max-w-5xl flex justify-between items-center mb-6">
+        <div className="w-full max-w-5xl flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 mb-6">
             <button
                 onClick={() => navigate('/')}
-                className="text-red-600 hover:text-red-800 font-semibold flex items-center gap-2 transition"
+                className="w-full sm:w-auto text-white font-bold uppercase tracking-wider bg-slate-900 border-4 border-slate-900 rounded-full px-6 py-2 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[2px_2px_0_0_rgba(0,0,0,0.5)] transition-all active:scale-95"
             >
                 &larr; Voltar
             </button>
 
             {pokemon && (
-                <div className="flex gap-4">
+                <div className="flex w-full sm:w-auto justify-between sm:justify-end gap-2 sm:gap-4">
                     <button
                         onClick={() => navigate(`/pokemon/${Number(pokemon.number.replace('#', '')) - 1}`)}
                         disabled={Number(pokemon.number.replace('#', '')) <= 1}
-                        className="px-4 py-2 bg-white text-red-600 font-semibold border border-red-600 rounded-full disabled:border-gray-300 disabled:text-gray-300 hover:bg-red-50 transition flex items-center gap-2 shadow-sm"
+                        className="flex-1 sm:flex-none px-2 sm:px-6 py-2 bg-slate-900 text-white font-bold uppercase tracking-wider border-4 border-slate-900 rounded-full disabled:bg-slate-400 disabled:border-slate-400 disabled:cursor-not-allowed shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[2px_2px_0_0_rgba(0,0,0,0.5)] transition-all active:scale-95 text-center text-sm sm:text-base"
                     >
                         &larr; Anterior
                     </button>
                     <button
                         onClick={() => navigate(`/pokemon/${Number(pokemon.number.replace('#', '')) + 1}`)}
                         disabled={Number(pokemon.number.replace('#', '')) >= 1025}
-                        className="px-4 py-2 bg-white text-red-600 font-semibold border border-red-600 rounded-full disabled:border-gray-300 disabled:text-gray-300 hover:bg-red-50 transition flex items-center gap-2 shadow-sm"
+                        className="flex-1 sm:flex-none px-2 sm:px-6 py-2 bg-slate-900 text-white font-bold uppercase tracking-wider border-4 border-slate-900 rounded-full disabled:bg-slate-400 disabled:border-slate-400 disabled:cursor-not-allowed shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[2px_2px_0_0_rgba(0,0,0,0.5)] transition-all active:scale-95 text-center text-sm sm:text-base"
                     >
                         Próximo &rarr;
                     </button>
