@@ -56,6 +56,28 @@ const pokeApiDetailedGraphQLSchema = z.object({
                             name: z.string()
                         })
                     })
+                ),
+                pokemon_v2_pokemonabilities: z.array(
+                    z.object({
+                        is_hidden: z.boolean(),
+                        pokemon_v2_ability: z.object({
+                            name: z.string()
+                        })
+                    })
+                ),
+                pokemon_v2_pokemonmoves: z.array(
+                    z.object({
+                        level: z.number(),
+                        pokemon_v2_move: z.object({
+                            name: z.string(),
+                            accuracy: z.number().nullable(),
+                            power: z.number().nullable(),
+                            pp: z.number().nullable(),
+                            pokemon_v2_type: z.object({
+                                name: z.string()
+                            })
+                        })
+                    })
                 )
             })
         )
@@ -127,6 +149,8 @@ export interface PokemonDetailedData extends PokemonSimpleData {
     stats: { name: string; value: number }[];
     description: string;
     evolutions: EvolutionNode[];
+    abilities: { name: string; isHidden: boolean }[];
+    moves: { name: string; type: string; power: number | null; accuracy: number | null; pp: number | null; level: number }[];
 }
 
 // --------------------------------------------------------
@@ -163,6 +187,24 @@ export async function fetchPokemonByName(name: string): Promise<PokemonDetailedD
           pokemon_v2_pokemontypes {
             pokemon_v2_type {
               name
+            }
+          }
+          pokemon_v2_pokemonabilities {
+            is_hidden
+            pokemon_v2_ability {
+              name
+            }
+          }
+          pokemon_v2_pokemonmoves(where: {pokemon_v2_movelearnmethod: {name: {_eq: "level-up"}}}, distinct_on: move_id) {
+            level
+            pokemon_v2_move {
+              name
+              accuracy
+              power
+              pp
+              pokemon_v2_type {
+                name
+              }
             }
           }
         }
@@ -215,6 +257,20 @@ export async function fetchPokemonByName(name: string): Promise<PokemonDetailedD
             value: s.base_stat
         })),
         description,
-        evolutions
+        evolutions,
+        abilities: data.pokemon_v2_pokemonabilities.map((a) => ({
+            name: a.pokemon_v2_ability.name,
+            isHidden: a.is_hidden
+        })),
+        moves: data.pokemon_v2_pokemonmoves
+          .map((m) => ({
+            name: m.pokemon_v2_move.name,
+            type: m.pokemon_v2_move.pokemon_v2_type.name,
+            power: m.pokemon_v2_move.power,
+            accuracy: m.pokemon_v2_move.accuracy,
+            pp: m.pokemon_v2_move.pp,
+            level: m.level
+          }))
+          .sort((a, b) => a.level - b.level)
     };
 }
