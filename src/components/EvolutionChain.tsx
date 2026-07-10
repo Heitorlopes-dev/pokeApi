@@ -6,7 +6,7 @@ interface EvolutionChainProps {
     evolutions: EvolutionNode[];
 }
 
-export const EvolutionChain: React.FC<EvolutionChainProps> = ({ evolutions }) => {
+export const EvolutionChain = ({ evolutions }: EvolutionChainProps) => {
     if (!evolutions || evolutions.length <= 1) {
         return null;
     }

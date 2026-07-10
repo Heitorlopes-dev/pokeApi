@@ -1,4 +1,4 @@
-import React from "react";
+
 import { typeColors } from "../utils/constants";
 import type { PokemonDetailedData } from "../services/pokemon";
 
@@ -6,7 +6,7 @@ interface PokemonProfileCardProps {
   pokemon: PokemonDetailedData;
 }
 
-export const PokemonProfileCard: React.FC<PokemonProfileCardProps> = ({ pokemon }) => {
+export const PokemonProfileCard = ({ pokemon }: PokemonProfileCardProps) => {
   return (
     <div className="md:w-1/2 p-8 md:p-12 flex flex-col items-center bg-slate-800 border-b-4 md:border-b-0 md:border-r-4 border-slate-900 relative">
       <div className="absolute top-4 left-4 w-4 h-4 bg-red-500 rounded-full shadow-[inset_-1px_-1px_0_rgba(0,0,0,0.5)] border-2 border-slate-900"></div>

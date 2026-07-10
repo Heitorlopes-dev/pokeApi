@@ -1,4 +1,4 @@
-import React from "react";
+
 import type { PokemonDetailedData } from "../services/pokemon";
 import { BaseStats } from "./BaseStats";
 
@@ -6,7 +6,7 @@ interface PokemonDexEntryProps {
   pokemon: PokemonDetailedData;
 }
 
-export const PokemonDexEntry: React.FC<PokemonDexEntryProps> = ({ pokemon }) => {
+export const PokemonDexEntry = ({ pokemon }: PokemonDexEntryProps) => {
   return (
     <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-slate-100">
       <div className="mb-8 relative">
